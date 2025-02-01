@@ -43,10 +43,10 @@ func TestAddGetDelete(t *testing.T) {
 
 	require.NoError(t, err)
 
-	assert.Equal(t, parcel.Client, testParcel.Client)
-	assert.Equal(t, parcel.Status, testParcel.Status)
-	assert.Equal(t, parcel.Address, testParcel.Address)
-	assert.Equal(t, parcel.CreatedAt, testParcel.CreatedAt)
+	assert.Equal(t, testParcel.Client, parcel.Client)
+	assert.Equal(t, testParcel.Status, parcel.Status)
+	assert.Equal(t, testParcel.Address, parcel.Address)
+	assert.Equal(t, testParcel.CreatedAt, parcel.CreatedAt)
 
 	err = store.Delete(id)
 	require.NoError(t, err)
@@ -69,10 +69,8 @@ func TestSetAddress(t *testing.T) {
 	id, err := store.Add(parcel)
 
 	require.NoError(t, err)
-	require.NotNil(t, id)
+	assert.NotNil(t, id)
 
-	// set address
-	// обновите адрес, убедитесь в отсутствии ошибки
 	newAddress := "new test address"
 
 	err = store.SetAddress(id, newAddress)
@@ -80,7 +78,7 @@ func TestSetAddress(t *testing.T) {
 
 	testParcel, err := store.Get(id)
 	require.NoError(t, err)
-	require.Equal(t, newAddress, testParcel.Address)
+	assert.Equal(t, testParcel.Address, newAddress)
 }
 
 func TestSetStatus(t *testing.T) {
@@ -97,7 +95,7 @@ func TestSetStatus(t *testing.T) {
 	id, err := store.Add(parcel)
 
 	require.NoError(t, err)
-	require.NotNil(t, id)
+	assert.NotNil(t, id)
 
 	newStatus := ParcelStatusSent
 	err = store.SetStatus(id, newStatus)
@@ -105,7 +103,7 @@ func TestSetStatus(t *testing.T) {
 
 	testParcel, err := store.Get(id)
 	require.NoError(t, err)
-	require.Equal(t, newStatus, testParcel.Status)
+	assert.Equal(t, testParcel.Status, newStatus)
 }
 
 func TestGetByClient(t *testing.T) {
@@ -145,14 +143,7 @@ func TestGetByClient(t *testing.T) {
 	assert.Equal(t, len(parcels), len(storedParcels))
 
 	for _, parcel := range storedParcels {
-
-		_, exists := parcelMap[parcel.Number]
-		require.True(t, exists)
-
 		expectedParcel := parcelMap[parcel.Number]
-		require.Equal(t, expectedParcel.Client, parcel.Client)
-		require.Equal(t, expectedParcel.Status, parcel.Status)
-		require.Equal(t, expectedParcel.Address, parcel.Address)
-		require.Equal(t, expectedParcel.CreatedAt, parcel.CreatedAt)
+		assert.Equal(t, expectedParcel, parcel)
 	}
 }

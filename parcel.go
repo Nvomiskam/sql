@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 type ParcelStore struct {
@@ -59,6 +58,10 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 
 		parcels = append(parcels, parcel)
 	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
 
 	return parcels, nil
 }
@@ -71,34 +74,27 @@ func (s ParcelStore) SetStatus(number int, status string) error {
 }
 
 func (s ParcelStore) SetAddress(number int, address string) error {
-	parcel, err := s.Get(number)
+
+	_, err := s.db.Exec("UPDATE parcel SET address = :address WHERE number = :number AND status = :status",
+		sql.Named("address", address),
+		sql.Named("number", number),
+		sql.Named("status", ParcelStatusRegistered))
 
 	if err != nil {
 		return err
 	}
-
-	if parcel.Status != ParcelStatusRegistered {
-		return fmt.Errorf("Посылка незарегестрирована - изменение адреса невозможно")
-	}
-
-	_, err = s.db.Exec("UPDATE parcel SET address = :address WHERE number = :number", sql.Named("address", address), sql.Named("number", number))
-
-	return err
+	return nil
 }
 
 func (s ParcelStore) Delete(number int) error {
 
-	parcel, err := s.Get(number)
+	_, err := s.db.Exec("DELETE FROM parcel WHERE number = :number AND status = :status",
+		sql.Named("number", number),
+		sql.Named("status", ParcelStatusRegistered))
 
 	if err != nil {
 		return err
 	}
 
-	if parcel.Status != ParcelStatusRegistered {
-		return fmt.Errorf("Посылка незарегестрирована - изменение адреса невозможно")
-	}
-
-	_, err = s.db.Exec("DELETE FROM parcel WHERE number = :number", sql.Named("number", number))
-	return err
-
+	return nil
 }
